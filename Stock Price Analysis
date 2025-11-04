@@ -1,0 +1,48 @@
+import warnings
+warnings.filterwarnings('ignore')
+
+import pandas as pd
+import numpy as np
+import requests
+from bs4 import BeautifulSoup
+import plotly.express as px
+import yfinance as yf
+
+pd.set_option('display.max_columns', None)
+#print('✅ Imports ready')
+
+# 1.1 Create tickers
+tickers = {
+    'TSLA': yf.Ticker('TSLA'),
+    'AMZN': yf.Ticker('AMZN'),
+    'AMD':  yf.Ticker('AMD'),
+    'GME':  yf.Ticker('GME'),
+}
+# 1.1 Create tickers
+tickers = {
+    'TSLA': yf.Ticker('TSLA'),
+    'AMZN': yf.Ticker('AMZN'),
+    'AMD':  yf.Ticker('AMD'),
+    'GME':  yf.Ticker('GME'),
+}
+list(tickers.keys())
+
+# p_list = list(tickers.keys())
+# print(p_list)
+
+# 1.2 Download daily history (last 5 years by default)
+hist = {sym: t.history(period='5y', interval='1d') for sym, t in tickers.items()}
+hist['TSLA'].head() # Peek at one
+# print(hist['TSLA'].head())
+
+# 1.3 Add simple features: daily returns and a 20-day moving average
+for sym, df in hist.items():
+    df['Return'] = df['Close'].pct_change()
+    df['MA20'] = df['Close'].rolling(20).mean()
+hist['TSLA'].tail(3)
+
+# 1.4 Quick plot (interactive)
+df = hist['TSLA'].reset_index()
+fig = px.line(df, x='Date', y=['Close','MA20'], title='TSLA Close vs 20-Day MA')
+fig.show()
+
